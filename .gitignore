@@ -1,0 +1,8 @@
+*.swp
+*.cmi
+*.cmx
+*.o
+*.out
+*.env
+rgwscaffolds
+test
