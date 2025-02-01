@@ -38,7 +38,6 @@ let scaffold target_dir =
 
   write_file (full_path ".env") Templates_lib.file_env;
   write_file (full_path "main.ml") Templates_lib.file_main_ml;
-  write_file (full_path "routes.ml") Templates_lib.file_routes_ml;
 
   write_file (full_path "lib/Home.ml") Templates_lib.file_home_ml;
   write_file (full_path "lib/About.ml") Templates_lib.file_about_ml;
@@ -47,6 +46,8 @@ let scaffold target_dir =
 
   write_file (full_path "dist/home.html") Templates_lib.file_home_html;
   write_file (full_path "dist/about.html") Templates_lib.file_about_html;
+
+  write_file (full_path "compile.sh") Templates_lib.compile_and_run_script;
 
   print_endline "Scaffolding complete. You can now edit your files or compile."
 

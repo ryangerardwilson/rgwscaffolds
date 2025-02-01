@@ -31,39 +31,21 @@ PORT=8080
   how environment variables are read.
 *)
 let file_main_ml = {|
-open Cohttp_lwt_unix
 open Lwt.Infix
-
-(* Loads environment variables from .env, if present *)
-let () = Dotenv.export ()
-
-let getenv_with_default var default =
-  try Sys.getenv var with Not_found -> default
-
-let app_name = getenv_with_default "APP_NAME" "My App"
-let port = int_of_string (getenv_with_default "PORT" "8080")
-
-(* Delegate route handling to the function defined in routes.ml *)
-let request_handler = Routes.route
-
-let () =
-  Printf.printf "Starting %s on port %d\n" app_name port;
-  let config = Server.make ~callback:request_handler () in
-  Lwt_main.run (Server.create ~mode:(`TCP (`Port port)) config)
-|}
-
-
-
-(*
-  routes.ml is where you define your routes and how they are handled.
-  You can add as many as you like. They are delegated to function handlers
-  in the "lib" directory by default in this example.
-*)
-let file_routes_ml = {|
-open Cohttp
 open Cohttp_lwt_unix
-open Lwt.Infix
 
+(* Example modules for /home and /about routes *)
+module Home = struct
+  let handle_root _conn _req _body =
+    Server.respond_string ~status:`OK ~body:"Welcome to the Home Page!" ()
+end
+
+module About = struct
+  let handle_about _conn _req _body =
+    Server.respond_string ~status:`OK ~body:"This is the About Page!" ()
+end
+
+(* Our simple routing logic *)
 let routes = [
   ("/home", Home.handle_root);
   ("/about", About.handle_about);
@@ -71,10 +53,28 @@ let routes = [
 
 let route conn req body =
   let uri_path = Uri.path (Request.uri req) in
-  match List.find_opt (fun (path, _) -> path = uri_path) routes with
+  match List.find_opt (fun (p, _) -> p = uri_path) routes with
   | Some (_, handler) -> handler conn req body
-  | None -> Server.respond_string ~status:`Not_found ~body:"Not Found" ()
+  | None ->
+      Server.respond_string ~status:`Not_found ~body:"Not Found" ()
+
+(* Load environment variables from .env, if present *)
+let () = Dotenv.export ()
+
+(* Helper for environment variables *)
+let getenv_with_default var default =
+  try Sys.getenv var with Not_found -> default
+
+let app_name = getenv_with_default "APP_NAME" "My App"
+let port = int_of_string (getenv_with_default "PORT" "8080")
+
+(* Start the server *)
+let () =
+  Printf.printf "Starting %s on port %d\n%!" app_name port;
+  let config = Server.make ~callback:route () in
+  Lwt_main.run (Server.create ~mode:(`TCP (`Port port)) config)
 |}
+
 
 (*
   Lib.ml is a central place to re-export all modules in the lib/ directory,
@@ -173,5 +173,25 @@ let file_about_html = {|
     <p>{{ABOUT_CONTENT}}</p>
   </body>
 </html>
+|}
+
+let compile_and_run_script = {|
+#!/bin/bash
+
+# STEP I - Ensure that the directory containing `Renderer` is visible to the OCaml compiler when compiling `About.ml` and `Home.ml`. Since `Renderer` is in a different directory (`test/utils`), you need to inform these files about the exact location:
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix utils/Renderer.ml
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix -I utils lib/About.ml
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix -I utils lib/Home.ml
+
+# STEP II - Link modules to main, in order of dependencies
+ocamlfind ocamlc -thread -package cohttp-lwt-unix,dotenv,str -linkpkg -o app utils/Renderer.cmo lib/About.cmo lib/Home.cmo main.ml
+
+# Step III - remove all .cmo, .cmi, .out files from the pwd and all sub-directories
+find . -type f \( -name "*.cmo" -o -name "*.cmi" -o -name "*.out" \) -exec rm -f {} +
+
+# Step IV - run the app if --and_run flag is provided
+if [[ "$1" == "--and_run" ]]; then
+  ./app
+fi
 |}
 
