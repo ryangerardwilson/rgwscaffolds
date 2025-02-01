@@ -47,7 +47,11 @@ let scaffold target_dir =
   write_file (full_path "dist/home.html") Templates_lib.file_home_html;
   write_file (full_path "dist/about.html") Templates_lib.file_about_html;
 
-  write_file (full_path "compile.sh") Templates_lib.compile_and_run_script;
+  let compile_sh_path = full_path "compile.sh" in
+  write_file compile_sh_path Templates_lib.compile_and_run_script;
+
+  (* Make the compile.sh file executable *)
+  Unix.chmod compile_sh_path 0o755;
 
   print_endline "Scaffolding complete. You can now edit your files or compile."
 

@@ -34,16 +34,6 @@ let file_main_ml = {|
 open Lwt.Infix
 open Cohttp_lwt_unix
 
-(* Example modules for /home and /about routes *)
-module Home = struct
-  let handle_root _conn _req _body =
-    Server.respond_string ~status:`OK ~body:"Welcome to the Home Page!" ()
-end
-
-module About = struct
-  let handle_about _conn _req _body =
-    Server.respond_string ~status:`OK ~body:"This is the About Page!" ()
-end
 
 (* Our simple routing logic *)
 let routes = [
@@ -178,18 +168,23 @@ let file_about_html = {|
 let compile_and_run_script = {|
 #!/bin/bash
 
-# STEP I - Ensure that the directory containing `Renderer` is visible to the OCaml compiler when compiling `About.ml` and `Home.ml`. Since `Renderer` is in a different directory (`test/utils`), you need to inform these files about the exact location:
-ocamlfind ocamlc -c -thread -package cohttp-lwt-unix utils/Renderer.ml
-ocamlfind ocamlc -c -thread -package cohttp-lwt-unix -I utils lib/About.ml
-ocamlfind ocamlc -c -thread -package cohttp-lwt-unix -I utils lib/Home.ml
+# Step I: Compile each module with consistent flags (packages + includes)
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix,dotenv,str -I utils -I lib utils/Renderer.ml
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix,dotenv,str -I utils -I lib lib/About.ml
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix,dotenv,str -I utils -I lib lib/Home.ml
+ocamlfind ocamlc -c -thread -package cohttp-lwt-unix,dotenv,str -I utils -I lib main.ml
 
-# STEP II - Link modules to main, in order of dependencies
-ocamlfind ocamlc -thread -package cohttp-lwt-unix,dotenv,str -linkpkg -o app utils/Renderer.cmo lib/About.cmo lib/Home.cmo main.ml
+# Step II: Link modules into the final executable
+ocamlfind ocamlc -thread -package cohttp-lwt-unix,dotenv,str -linkpkg \
+  -o app \
+  utils/Renderer.cmo lib/About.cmo lib/Home.cmo main.cmo
 
-# Step III - remove all .cmo, .cmi, .out files from the pwd and all sub-directories
+# Step III: clean up .cmo, .cmi, .out files
 find . -type f \( -name "*.cmo" -o -name "*.cmi" -o -name "*.out" \) -exec rm -f {} +
 
-# Step IV - run the app if --and_run flag is provided
+echo "Use the --and_run flag to compile and run the app automatically."
+
+# Step IV: run the app if --and_run is provided
 if [[ "$1" == "--and_run" ]]; then
   ./app
 fi
