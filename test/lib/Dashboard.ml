@@ -1,3 +1,4 @@
+
 open Cohttp
 open Cohttp_lwt_unix
 open Lwt.Infix
@@ -42,3 +43,4 @@ let handle_dashboard _conn req _body =
                 let filename = "dashboard.html" in
                 let substitutions = [("{{USERNAME}}", username)] in
                 Renderer.server_side_render filename substitutions))
+

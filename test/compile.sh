@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Step 1: Compile modules
@@ -46,4 +47,3 @@ echo "Use the --and_run flag to compile and run the app automatically."
 if [[ "$1" == "--and_run" ]]; then
   ./app
 fi
-

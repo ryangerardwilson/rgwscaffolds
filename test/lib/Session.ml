@@ -1,3 +1,4 @@
+ 
 (* File: lib/Session.ml *)
 
 open Base64  (* or “open B64” if your library uses that module name *)
@@ -24,4 +25,3 @@ let get_username_for_session session_id =
 
 let destroy_session session_id =
   Hashtbl.remove session_store session_id
-

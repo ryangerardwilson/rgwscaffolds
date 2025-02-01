@@ -1,3 +1,4 @@
+
 (* lib/Landing.ml *)
 
 open Cohttp
@@ -54,4 +55,3 @@ let handle_landing _conn req _body =
   ] in
 
   Renderer.server_side_render "landing.html" substitutions
-
