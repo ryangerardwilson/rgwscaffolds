@@ -41,11 +41,18 @@ let scaffold target_dir =
 
   write_file (full_path "lib/Home.ml") Templates_lib.file_home_ml;
   write_file (full_path "lib/About.ml") Templates_lib.file_about_ml;
+  write_file (full_path "lib/Auth.ml") Templates_lib.file_auth_ml;
+  write_file (full_path "lib/Dashboard.ml") Templates_lib.file_dashboard_ml;
+  write_file (full_path "lib/Landing.ml") Templates_lib.file_landing_ml;
+  write_file (full_path "lib/Session.ml") Templates_lib.file_session_ml;
 
   write_file (full_path "utils/Renderer.ml") Templates_lib.file_renderer_ml;
 
   write_file (full_path "dist/home.html") Templates_lib.file_home_html;
   write_file (full_path "dist/about.html") Templates_lib.file_about_html;
+  write_file (full_path "dist/dashboard.html") Templates_lib.file_dashboard_html;
+  write_file (full_path "dist/landing.html") Templates_lib.file_landing_html;
+  write_file (full_path "dist/login.html") Templates_lib.file_login_html;
 
   let compile_sh_path = full_path "compile.sh" in
   write_file compile_sh_path Templates_lib.compile_and_run_script;

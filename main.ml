@@ -1,3 +1,5 @@
+let () = Random.self_init ()
+
 (* Function to find the argument immediately following the --scaffold flag, if present *)
 let get_scaffold_directory () =
   (* Converts Sys.argv to a list, skipping the executable name itself *)
