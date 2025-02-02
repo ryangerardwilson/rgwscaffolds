@@ -1,25 +1,5 @@
-(* Helper function to check if a given flag is present in Sys.argv *)
-let has_flag flag =
-  Array.exists ((=) flag) Sys.argv
 
-(* Helper function to write content to a file (overwrite if exists) *)
-let write_file filename content =
-  let oc = open_out filename in
-  output_string oc content;
-  close_out oc;
-  Printf.printf "Created or updated file: %s\n" filename
-
-(* Helper function to create a directory if it doesn't already exist *)
-let ensure_dir path =
-  if Sys.file_exists path then
-    Printf.printf "Directory '%s' already exists, skipping creation.\n" path
-  else begin
-    Unix.mkdir path 0o755;
-    Printf.printf "Created directory: %s\n" path
-  end
-
-
-let file_env = {|
+let ext_env = {|
 APP_NAME=xyz
 PUBLIC_DIR=dist
 PORT=8080
@@ -30,7 +10,7 @@ PORT=8080
   You can customize how you initialize your server and
   how environment variables are read.
 *)
-let file_main_ml = {|
+let file_main_ext_ml = {|
 open Lwt.Infix
 open Cohttp_lwt_unix
 
@@ -76,7 +56,7 @@ let () =
 (*
   Home.ml in lib/ directory - demonstration route handler for "/home"
 *)
-let file_home_ml = {|
+let dir_lib_file_Home_ext_ml = {|
 open Cohttp
 open Cohttp_lwt_unix
 open Lwt.Infix
@@ -94,7 +74,7 @@ let handle_root _conn _req _body =
 (*
   About.ml in lib/ directory - demonstration route handler for "/about"
 *)
-let file_about_ml = {|
+let dir_lib_file_About_ext_ml = {|
 open Cohttp
 open Cohttp_lwt_unix
 open Lwt.Infix
@@ -111,7 +91,7 @@ let handle_about (_conn : Cohttp_lwt_unix.Server.conn) (_req : Cohttp.Request.t)
 (*
   Auth.ml in the lib/ directory
 *)
-let file_auth_ml = {| 
+let dir_lib_file_Auth_ext_ml = {| 
 (* lib/Auth.ml *)
 
 open Cohttp
@@ -203,7 +183,7 @@ let handle_logout _conn req _body =
   Dashboard.ml in the lib/ directory
 *)
 
-let file_dashboard_ml = {|
+let dir_lib_file_Dashboard_ext_ml = {|
 open Cohttp
 open Cohttp_lwt_unix
 open Lwt.Infix
@@ -255,7 +235,7 @@ let handle_dashboard _conn req _body =
   Session.ml in the lib directory
 *)
 
-let file_session_ml = {| 
+let dir_lib_file_Session_ext_ml = {| 
 (* File: lib/Session.ml *)
 
 open Base64  (* or “open B64” if your library uses that module name *)
@@ -285,7 +265,7 @@ let destroy_session session_id =
 |}
 
 
-let file_landing_ml = {|
+let dir_lib_file_Landing_ext_ml = {|
 (* lib/Landing.ml *)
 
 open Cohttp
@@ -350,7 +330,7 @@ let handle_landing _conn req _body =
   loads HTML files and performs placeholder replacements.
 *)
 
-let file_renderer_ml = {|
+let dir_utils_file_Renderer_ext_ml = {|
 open Cohttp
 open Cohttp_lwt_unix
 open Lwt.Infix
@@ -379,7 +359,7 @@ let server_side_render (filename : string) (substitutions : (string * string) li
   The dist/ directory will contain static HTML files. You can then
   refer to them in your route handlers. Below are minimal examples.
 *)
-let file_home_html = {|
+let dir_resources_file_home_ext_html = {|
 <html>
   <head>
     <title>Home Page</title>
@@ -391,7 +371,7 @@ let file_home_html = {|
 </html>
 |}
 
-let file_about_html = {|
+let dir_resources_file_about_ext_html = {|
 <html>
   <head>
     <title>{{PAGE_TITLE}}</title>
@@ -403,7 +383,7 @@ let file_about_html = {|
 </html>
 |}
 
-let file_dashboard_html = {|
+let dir_resources_file_dashboard_ext_html = {|
 <html>
   <head>
     <title>Dashboard</title>
@@ -416,7 +396,7 @@ let file_dashboard_html = {|
 </html>
 |}
 
-let file_landing_html = {|
+let dir_resources_file_landing_ext_html = {|
 <!-- dist/landing.html -->
 <html>
   <head>
@@ -434,7 +414,7 @@ let file_landing_html = {|
 </html>
 |}
 
-let file_login_html = {|
+let dir_resources_file_login_ext_html = {|
 <html>
   <head>
     <title>Login</title>
@@ -457,7 +437,7 @@ let file_login_html = {|
 |}
 
 
-let compile_and_run_script = {|
+let file_compile_ext_sh = {|
 #!/bin/bash
 
 # Step 1: Compile modules
